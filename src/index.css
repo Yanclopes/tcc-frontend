@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  /* Faixa colorida com as 17 cores dos ODS, usada como detalhe visual. */
+  .ods-stripe {
+    background: linear-gradient(
+      90deg,
+      #e5243b,
+      #dda63a,
+      #4c9f38,
+      #c5192d,
+      #ff3a21,
+      #26bde2,
+      #fcc30b,
+      #a21942,
+      #fd6925,
+      #dd1367,
+      #fd9d24,
+      #bf8b2e,
+      #3f7e44,
+      #0a97d9,
+      #56c02b,
+      #00689d,
+      #19486a
+    );
+  }
+}
+
+/* Barra de rolagem discreta */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-slate-300;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
+}
