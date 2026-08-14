@@ -36,9 +36,21 @@ api.interceptors.response.use(
 /** Extrai uma mensagem de erro amigável de uma falha do Axios. */
 export function extractError(error: unknown, fallback = 'Ocorreu um erro inesperado.'): string {
   if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    // 429: rate limit. Traduz para o usuário sem expor detalhes técnicos.
+    if (status === 429) {
+      return 'Muitas requisições em pouco tempo. Aguarde alguns instantes e tente novamente.';
+    }
+    // 5xx: mensagem genérica (não expõe detalhes internos do servidor).
+    if (status && status >= 500) {
+      return 'Erro no servidor. Tente novamente em instantes.';
+    }
     const data = error.response?.data as { message?: string | string[] } | undefined;
     if (data?.message) {
       return Array.isArray(data.message) ? data.message.join(' ') : data.message;
+    }
+    if (error.message === 'Network Error') {
+      return 'Sem conexão com o servidor. Verifique sua internet.';
     }
     if (error.message) return error.message;
   }
