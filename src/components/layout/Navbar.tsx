@@ -1,4 +1,4 @@
-import { BarChart3, Crown, LogOut, Menu, School, ScrollText, Trophy, X } from 'lucide-react';
+import { BarChart3, Crown, LogOut, Menu, School, ScrollText, Trophy, UserCircle2, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
@@ -62,19 +62,23 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {isAuthenticated ? (
             <>
-              <span className="text-sm text-slate-600">
+              <Link
+                to="/perfil"
+                className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-brand-700"
+              >
+                <UserCircle2 className="h-4 w-4" />
                 Olá, <strong className="text-slate-900">{user?.name.split(' ')[0]}</strong>
                 {roleBadge && (
                   <span
                     className={cn(
-                      'ml-2 rounded-full px-2 py-0.5 text-xs text-white',
+                      'ml-1 rounded-full px-2 py-0.5 text-xs text-white',
                       roleBadge === 'master' ? 'bg-amber-500' : 'bg-slate-800',
                     )}
                   >
                     {roleBadge}
                   </span>
                 )}
-              </span>
+              </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" /> Sair
               </Button>
@@ -120,9 +124,18 @@ export function Navbar() {
             ))}
             <div className="mt-2 border-t border-slate-100 pt-2">
               {isAuthenticated ? (
-                <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start">
-                  <LogOut className="h-4 w-4" /> Sair
-                </Button>
+                <>
+                  <NavLink
+                    to="/perfil"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                  >
+                    <UserCircle2 className="h-4 w-4" /> Meu perfil
+                  </NavLink>
+                  <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start">
+                    <LogOut className="h-4 w-4" /> Sair
+                  </Button>
+                </>
               ) : (
                 <div className="flex flex-col gap-2">
                   <Button variant="outline" size="sm" asChild>

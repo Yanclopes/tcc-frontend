@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
 
 /** Casca comum: navbar no topo, conteúdo roteado no meio, rodapé embaixo. */
@@ -13,6 +13,11 @@ export function Layout() {
         <p>
           Desafio ODS · TCC — Sistemas de Informação / UNIDAVI · Levantamento do
           conhecimento sobre os Objetivos de Desenvolvimento Sustentável
+        </p>
+        <p className="mt-2">
+          <Link to="/privacidade" className="font-medium text-slate-600 hover:text-brand-700">
+            Política de Privacidade
+          </Link>
         </p>
       </footer>
     </div>

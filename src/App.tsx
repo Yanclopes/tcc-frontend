@@ -6,6 +6,8 @@ import { GamePage } from '@/pages/GamePage';
 import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { PrivacyPage } from '@/pages/PrivacyPage';
+import { ProfilePage } from '@/pages/ProfilePage';
 import { RankingPage } from '@/pages/RankingPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { QuestionsAdminPage } from '@/pages/admin/QuestionsAdminPage';
@@ -19,9 +21,13 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="registrar" element={<RegisterPage />} />
-        {/* Jogo e ranking sao abertos (permitem participacao anonima). */}
-        <Route path="jogar" element={<GamePage />} />
+        <Route path="privacidade" element={<PrivacyPage />} />
+        {/* Ranking e aberto (visualizacao publica); jogar e perfil exigem autenticacao. */}
         <Route path="ranking" element={<RankingPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="jogar" element={<GamePage />} />
+          <Route path="perfil" element={<ProfilePage />} />
+        </Route>
         {/* Área administrativa exige papel admin (ou master). */}
         <Route element={<ProtectedRoute requireAdmin />}>
           <Route path="dashboard" element={<DashboardPage />} />
