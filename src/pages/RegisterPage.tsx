@@ -62,6 +62,10 @@ export function RegisterPage() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!educationLevelId) {
+      toast('Selecione sua escolaridade.', 'error');
+      return;
+    }
     if (!consent) {
       toast('É necessário aceitar o termo de consentimento (LGPD).', 'error');
       return;
@@ -75,7 +79,7 @@ export function RegisterPage() {
       const willSuggest = suggesting && suggestName.trim().length >= 2 && !!cityId;
       await register({
         ...form,
-        educationLevelId: educationLevelId ? Number(educationLevelId) : undefined,
+        educationLevelId: Number(educationLevelId),
         schoolId: !suggesting && schoolId ? Number(schoolId) : undefined,
         suggestedSchoolName: willSuggest ? suggestName.trim() : undefined,
         suggestedSchoolCityId: willSuggest ? Number(cityId) : undefined,
@@ -99,7 +103,7 @@ export function RegisterPage() {
     <div className="mx-auto max-w-lg">
       <h1 className="mb-1 text-center text-2xl font-extrabold text-slate-900">Criar conta</h1>
       <p className="mb-6 text-center text-sm text-slate-600">
-        Informar escola e escolaridade ajuda o recorte regional da pesquisa (opcional).
+        A escolaridade é obrigatória; informar a escola ajuda no recorte regional (opcional).
       </p>
       <Card>
         <CardContent>
@@ -136,12 +140,14 @@ export function RegisterPage() {
             </div>
 
             <div>
-              <Label>Escolaridade</Label>
+              <Label>
+                Escolaridade <span className="text-rose-500">*</span>
+              </Label>
               <Select
                 value={educationLevelId}
                 onValueChange={setEducationLevelId}
                 options={toOptions(levels)}
-                placeholder="Selecione (opcional)"
+                placeholder="Selecione"
               />
             </div>
 

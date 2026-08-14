@@ -5,8 +5,9 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+  /** Obrigatório — sustenta o recorte por segmento educacional na pesquisa. */
+  educationLevelId: number;
   schoolId?: number;
-  educationLevelId?: number;
   consentVersion?: string;
   /** Escola inexistente sugerida pelo aluno (gera sugestão para o admin). */
   suggestedSchoolName?: string;

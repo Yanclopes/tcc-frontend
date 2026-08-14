@@ -85,7 +85,7 @@ export interface FinishGameResponse {
 
 export interface RankingEntry {
   id: number;
-  user?: { id: number; name: string } | null;
+  user: { id: number; name: string };
   score: number;
   completedAt: string;
 }
@@ -207,6 +207,5 @@ export interface DashboardFilter {
   educationLevelId?: number;
   from?: string;
   to?: string;
-  includeAnonymous?: boolean;
   level?: RegionLevel;
 }
