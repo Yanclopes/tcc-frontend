@@ -1,0 +1,9 @@
+name = "tcc-frontend"
+compatibility_date = "2024-11-01"
+
+# Serve a SPA compilada como assets estaticos.
+# `single-page-application` faz o fallback pra index.html em rotas
+# nao encontradas (necessario pro react-router funcionar em URLs diretas).
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
