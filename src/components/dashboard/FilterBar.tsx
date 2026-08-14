@@ -125,18 +125,6 @@ export function FilterBar({
           />
         </Field>
       )}
-
-      <div className="flex items-end">
-        <label className="flex items-center gap-2 pb-2 text-sm text-slate-600">
-          <input
-            type="checkbox"
-            className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
-            checked={filter.includeAnonymous ?? true}
-            onChange={(e) => onChange({ ...filter, includeAnonymous: e.target.checked })}
-          />
-          Incluir anônimos
-        </label>
-      </div>
     </div>
   );
 }

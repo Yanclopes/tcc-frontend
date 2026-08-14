@@ -57,9 +57,7 @@ export function RankingPage() {
                 </div>
                 <UserCircle2 className="h-8 w-8 text-slate-300" />
                 <div className="flex-1">
-                  <div className="font-semibold text-slate-800">
-                    {e.user?.name ?? 'Participante anônimo'}
-                  </div>
+                  <div className="font-semibold text-slate-800">{e.user.name}</div>
                   <div className="text-xs text-slate-400">
                     {new Date(e.completedAt).toLocaleDateString('pt-BR')}
                   </div>

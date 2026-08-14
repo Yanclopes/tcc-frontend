@@ -40,7 +40,7 @@ const tabTrigger = (active: boolean) =>
 
 export function DashboardPage() {
   const { toast } = useToast();
-  const [filter, setFilter] = useState<DashboardFilter>({ includeAnonymous: true, level: 'state' });
+  const [filter, setFilter] = useState<DashboardFilter>({ level: 'state' });
   const [tab, setTab] = useState('overview');
 
   const [overview, setOverview] = useState<DashboardOverview>();
@@ -182,8 +182,8 @@ export function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-700">
-                O recorte regional considera apenas participantes autenticados (a partida anônima
-                não tem vínculo geográfico).
+                O recorte regional só considera participantes que informaram uma escola no perfil
+                (campo opcional no cadastro).
               </p>
               <HBarChart items={regionBars} emptyLabel="Nenhum dado regional para o filtro atual." />
             </CardContent>

@@ -24,7 +24,7 @@ Alinhada ao referencial teórico do TCC:
 - **Autenticação** (login/registro) com **JWT** e controle por **papel** (`user`/`admin`).
 - **Jogo gamificado** (game show de perguntas e respostas): escolha de modo (Rápido/Clássico/Infinito/Sobrevivência),
   perguntas por ODS, timer com bônus de velocidade, **power-ups** (50:50, Plateia, Pular),
-  pontuação e sequência (*streak*), tela de resultado. Permite **partida anônima**.
+  pontuação e sequência (*streak*), tela de resultado. Exige autenticação para jogar.
 - **Ranking** (placar geral).
 - **Dashboard administrativo** (somente `admin`): KPIs gerais, desempenho **por ODS**,
   **por região** (estado/cidade/escola) e **por pergunta**, com filtros combináveis
