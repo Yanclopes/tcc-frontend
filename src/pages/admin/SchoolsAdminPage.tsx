@@ -1,4 +1,4 @@
-import { Check, Pencil, Plus, School as SchoolIcon, Trash2, X } from 'lucide-react';
+import { Check, Link2, Pencil, Plus, School as SchoolIcon, Trash2, X } from 'lucide-react';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
@@ -66,6 +66,15 @@ export function SchoolsAdminPage() {
 
   // Níveis escolhidos por sugestão (para aprovação).
   const [sugLevels, setSugLevels] = useState<Record<number, number[]>>({});
+  // Nome editado por sugestão (permite corrigir typo do aluno antes de aprovar).
+  const [sugNameOverride, setSugNameOverride] = useState<Record<number, string>>({});
+
+  // Modal ativo: aprovar-com-edit, vincular ou rejeitar.
+  const [modal, setModal] = useState<
+    | { kind: 'link'; suggestion: SchoolSuggestion; schoolId?: string }
+    | { kind: 'reject'; suggestion: SchoolSuggestion; reason: string }
+    | null
+  >(null);
 
   const load = async () => {
     const [sc, sg] = await Promise.all([
@@ -154,20 +163,44 @@ export function SchoolsAdminPage() {
   };
 
   const approve = async (s: SchoolSuggestion) => {
+    const overrideName = (sugNameOverride[s.id] ?? '').trim();
     try {
-      await schoolsService.approve(s.id, sugLevels[s.id] ?? []);
-      toast(`Escola "${s.name}" criada e aluno vinculado.`, 'success');
+      await schoolsService.approve(
+        s.id,
+        sugLevels[s.id] ?? [],
+        overrideName && overrideName !== s.name ? { name: overrideName } : undefined,
+      );
+      toast(`Escola "${overrideName || s.name}" criada e aluno vinculado.`, 'success');
       await load();
     } catch (err) {
       toast(extractError(err), 'error');
     }
   };
 
-  const reject = async (s: SchoolSuggestion) => {
-    if (!window.confirm(`Rejeitar a sugestão "${s.name}"?`)) return;
+  const confirmLink = async () => {
+    if (modal?.kind !== 'link' || !modal.schoolId) {
+      toast('Selecione a escola existente para vincular.', 'error');
+      return;
+    }
     try {
-      await schoolsService.reject(s.id);
-      toast('Sugestão rejeitada.', 'success');
+      await schoolsService.link(modal.suggestion.id, Number(modal.schoolId));
+      toast('Aluno vinculado à escola existente.', 'success');
+      setModal(null);
+      await load();
+    } catch (err) {
+      toast(extractError(err), 'error');
+    }
+  };
+
+  const confirmReject = async () => {
+    if (modal?.kind !== 'reject' || modal.reason.trim().length < 4) {
+      toast('Descreva o motivo (mín. 4 caracteres).', 'error');
+      return;
+    }
+    try {
+      await schoolsService.reject(modal.suggestion.id, modal.reason.trim());
+      toast('Sugestão rejeitada. Aluno será solicitado a refazer no próximo login.', 'success');
+      setModal(null);
       await load();
     } catch (err) {
       toast(extractError(err), 'error');
@@ -207,7 +240,7 @@ export function SchoolsAdminPage() {
               {suggestions.map((s) => (
                 <li key={s.id} className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-semibold text-slate-900">{s.name}</p>
                       <p className="text-xs text-slate-500">
                         {s.city.name}
@@ -215,26 +248,50 @@ export function SchoolsAdminPage() {
                         {s.suggestedBy ? ` · sugerida por ${s.suggestedBy.name}` : ''}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button size="sm" onClick={() => approve(s)}>
                         <Check className="h-4 w-4" /> Aprovar
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => reject(s)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setModal({ kind: 'link', suggestion: s })}
+                      >
+                        <Link2 className="h-4 w-4" /> Vincular existente
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setModal({ kind: 'reject', suggestion: s, reason: '' })}
+                      >
                         <X className="h-4 w-4" /> Rejeitar
                       </Button>
                     </div>
                   </div>
-                  <div className="mt-3">
-                    <p className="mb-1.5 text-xs font-medium text-slate-500">
-                      Níveis atendidos (aplicados ao aprovar):
-                    </p>
-                    <LevelPicker
-                      levels={levels}
-                      selected={sugLevels[s.id] ?? []}
-                      onToggle={(id) =>
-                        setSugLevels((prev) => ({ ...prev, [s.id]: toggle(prev[s.id] ?? [], id) }))
-                      }
-                    />
+                  <div className="mt-3 space-y-2">
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-slate-500">
+                        Nome final (edite se o aluno digitou errado):
+                      </p>
+                      <Input
+                        value={sugNameOverride[s.id] ?? s.name}
+                        onChange={(e) =>
+                          setSugNameOverride((prev) => ({ ...prev, [s.id]: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div>
+                      <p className="mb-1.5 text-xs font-medium text-slate-500">
+                        Níveis atendidos (aplicados ao aprovar):
+                      </p>
+                      <LevelPicker
+                        levels={levels}
+                        selected={sugLevels[s.id] ?? []}
+                        onToggle={(id) =>
+                          setSugLevels((prev) => ({ ...prev, [s.id]: toggle(prev[s.id] ?? [], id) }))
+                        }
+                      />
+                    </div>
                   </div>
                 </li>
               ))}
@@ -299,6 +356,86 @@ export function SchoolsAdminPage() {
           </form>
         </CardContent>
       </Card>
+
+      {/* Modais de link/reject */}
+      {modal?.kind === 'link' && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/60 p-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-bold text-slate-900">Vincular à escola existente</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Sugestão: <span className="font-semibold">{modal.suggestion.name}</span>
+                  {' · '}
+                  {modal.suggestion.city.name}
+                  {modal.suggestion.city.state ? ` / ${modal.suggestion.city.state.code}` : ''}
+                </p>
+              </div>
+              <div>
+                <Label>Escola cadastrada</Label>
+                <Combobox
+                  value={modal.schoolId}
+                  onValueChange={(v) =>
+                    setModal((prev) => (prev?.kind === 'link' ? { ...prev, schoolId: v } : prev))
+                  }
+                  options={schools.map((s) => ({
+                    value: String(s.id),
+                    label: `${s.name} · ${s.city.name}`,
+                  }))}
+                  placeholder="Escolha uma escola do catálogo"
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  O aluno passará a apontar para essa escola. Não penaliza.
+                </p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setModal(null)}>
+                  Cancelar
+                </Button>
+                <Button onClick={confirmLink}>Vincular</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {modal?.kind === 'reject' && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/60 p-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-bold text-slate-900">Rejeitar sugestão</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Sugestão: <span className="font-semibold">{modal.suggestion.name}</span>
+                </p>
+                <p className="mt-1 text-xs text-amber-700">
+                  O aluno será solicitado a refazer no próximo login e verá o motivo.
+                </p>
+              </div>
+              <div>
+                <Label>Motivo</Label>
+                <textarea
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                  rows={3}
+                  value={modal.reason}
+                  onChange={(e) =>
+                    setModal((prev) =>
+                      prev?.kind === 'reject' ? { ...prev, reason: e.target.value } : prev,
+                    )
+                  }
+                  placeholder="Ex.: Nome muito genérico — informe o nome completo da escola."
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setModal(null)}>
+                  Cancelar
+                </Button>
+                <Button onClick={confirmReject}>Rejeitar</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Lista de escolas */}
       <Card>

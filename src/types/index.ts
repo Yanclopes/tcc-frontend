@@ -7,6 +7,8 @@ export interface AuthUser {
   name: string;
   email: string;
   role: Role;
+  needsSchoolReregistration: boolean;
+  schoolRejectionReason?: string | null;
 }
 
 export interface AuthResponse {
@@ -116,7 +118,7 @@ export interface School {
   educationLevels: EducationLevel[];
 }
 
-export type SuggestionStatus = 'pending' | 'approved' | 'rejected';
+export type SuggestionStatus = 'pending' | 'approved' | 'rejected' | 'linked';
 
 export interface SchoolSuggestion {
   id: number;
@@ -124,6 +126,7 @@ export interface SchoolSuggestion {
   city: CityRef;
   note?: string | null;
   status: SuggestionStatus;
+  rejectionReason?: string | null;
   suggestedBy?: { id: number; name: string; email: string } | null;
   createdSchool?: { id: number; name: string } | null;
   createdAt: string;

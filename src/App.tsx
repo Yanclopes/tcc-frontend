@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
+import { CompleteProfilePage } from '@/pages/CompleteProfilePage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { GamePage } from '@/pages/GamePage';
 import { HomePage } from '@/pages/HomePage';
@@ -25,6 +26,7 @@ export default function App() {
         {/* Ranking e aberto (visualizacao publica); jogar e perfil exigem autenticacao. */}
         <Route path="ranking" element={<RankingPage />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="completar-perfil" element={<CompleteProfilePage />} />
           <Route path="jogar" element={<GamePage />} />
           <Route path="perfil" element={<ProfilePage />} />
         </Route>

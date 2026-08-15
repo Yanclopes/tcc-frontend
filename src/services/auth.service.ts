@@ -7,11 +7,14 @@ export interface RegisterPayload {
   password: string;
   /** Obrigatório — sustenta o recorte por segmento educacional na pesquisa. */
   educationLevelId: number;
+  /** Obrigatório — sustenta o recorte regional. */
+  stateId: number;
+  cityId: number;
+  /** Uma das duas opções abaixo é obrigatória. */
   schoolId?: number;
-  consentVersion?: string;
-  /** Escola inexistente sugerida pelo aluno (gera sugestão para o admin). */
   suggestedSchoolName?: string;
   suggestedSchoolCityId?: number;
+  consentVersion?: string;
 }
 
 export const authService = {

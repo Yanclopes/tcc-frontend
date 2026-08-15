@@ -45,8 +45,15 @@ export const schoolsService = {
     return data;
   },
 
-  async reject(id: number): Promise<SchoolSuggestion> {
-    const { data } = await api.post<SchoolSuggestion>(`/schools/suggestions/${id}/reject`, {});
+  async link(id: number, schoolId: number): Promise<School> {
+    const { data } = await api.post<School>(`/schools/suggestions/${id}/link`, { schoolId });
+    return data;
+  },
+
+  async reject(id: number, reason: string): Promise<SchoolSuggestion> {
+    const { data } = await api.post<SchoolSuggestion>(`/schools/suggestions/${id}/reject`, {
+      reason,
+    });
     return data;
   },
 };

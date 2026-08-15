@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { TOKEN_KEY } from '@/lib/api';
 import { authService, type RegisterPayload } from '@/services/auth.service';
+import { userService } from '@/services/user.service';
 import type { AuthUser } from '@/types';
 
 const USER_KEY = 'ods_user';
@@ -10,8 +11,12 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isMaster: boolean;
+  /** True quando a ultima sugestao de escola foi rejeitada. */
+  needsSchoolReregistration: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
+  /** Re-carrega o perfil do backend (usado ao completar-perfil apos rejeicao). */
+  refreshUser: () => Promise<void>;
   logout: () => void;
 }
 
@@ -46,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // O master faz tudo do admin (super-admin), entao tambem conta como admin.
       isAdmin: user?.role === 'admin' || user?.role === 'master',
       isMaster: user?.role === 'master',
+      needsSchoolReregistration: !!user?.needsSchoolReregistration,
       async login(email, password) {
         const res = await authService.login(email, password);
         localStorage.setItem(TOKEN_KEY, res.accessToken);
@@ -55,6 +61,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const res = await authService.register(payload);
         localStorage.setItem(TOKEN_KEY, res.accessToken);
         setUser(res.user);
+      },
+      async refreshUser() {
+        const me = await userService.me();
+        setUser((prev) =>
+          prev
+            ? {
+                ...prev,
+                needsSchoolReregistration: me.needsSchoolReregistration,
+                schoolRejectionReason: me.schoolRejectionReason,
+              }
+            : prev,
+        );
       },
       logout() {
         localStorage.removeItem(TOKEN_KEY);
