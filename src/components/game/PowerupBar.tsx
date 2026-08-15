@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 const POWERUPS = [
   { key: 'fifty', label: '50:50', icon: Scissors, hint: 'Elimina 2 alternativas' },
   { key: 'audience', label: 'Plateia', icon: Users, hint: 'Placar da galera' },
-  { key: 'skip', label: 'Pular', icon: SkipForward, hint: 'Pula a pergunta' },
+  { key: 'skip', label: 'Trocar', icon: SkipForward, hint: 'Troca por outra pergunta' },
 ];
 
 /** Barra de power-ups (ajudas). Desabilita os já usados/indisponíveis. */
