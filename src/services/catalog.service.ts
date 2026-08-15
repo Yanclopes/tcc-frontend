@@ -18,8 +18,10 @@ export const catalogService = {
     return data;
   },
 
-  async ranking(limit = 10): Promise<RankingEntry[]> {
-    const { data } = await api.get<RankingEntry[]>('/ranking', { params: { limit } });
+  async ranking(limit = 10, mode?: string): Promise<RankingEntry[]> {
+    const { data } = await api.get<RankingEntry[]>('/ranking', {
+      params: { limit, ...(mode ? { mode } : {}) },
+    });
     return data;
   },
 
