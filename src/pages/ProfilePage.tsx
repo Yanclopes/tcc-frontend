@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { AlertTriangle, Download, Trash2, UserCircle2 } from 'lucide-react';
+import { AlertTriangle, Download, EyeOff, Trash2, UserCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
@@ -17,9 +17,9 @@ export function ProfilePage() {
   const navigate = useNavigate();
 
   const [exporting, setExporting] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [dialog, setDialog] = useState<null | 'delete' | 'anonymize'>(null);
   const [password, setPassword] = useState('');
-  const [deleting, setDeleting] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const handleExport = async () => {
     setExporting(true);
@@ -41,22 +41,37 @@ export function ProfilePage() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleConfirm = async () => {
     if (!password) {
       toast('Informe sua senha para confirmar.', 'error');
       return;
     }
-    setDeleting(true);
+    setProcessing(true);
     try {
-      await userService.deleteMyAccount(password);
-      toast('Sua conta foi excluída. Sentiremos sua falta.', 'success');
-      setDeleteOpen(false);
+      if (dialog === 'delete') {
+        await userService.deleteMyAccount(password);
+        toast('Sua conta foi excluída. Sentiremos sua falta.', 'success');
+      } else if (dialog === 'anonymize') {
+        await userService.anonymizeMyAccount(password);
+        toast(
+          'Seus dados pessoais foram anonimizados. Obrigado pela contribuição à pesquisa.',
+          'success',
+        );
+      }
+      setDialog(null);
+      setPassword('');
       logout();
       navigate('/', { replace: true });
     } catch (err) {
-      toast(extractError(err, 'Não foi possível excluir a conta.'), 'error');
+      toast(
+        extractError(
+          err,
+          dialog === 'delete' ? 'Não foi possível excluir a conta.' : 'Não foi possível anonimizar.',
+        ),
+        'error',
+      );
     } finally {
-      setDeleting(false);
+      setProcessing(false);
     }
   };
 
@@ -113,20 +128,42 @@ export function ProfilePage() {
             </div>
           </div>
 
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-semibold text-amber-900">Anonimizar meus dados</p>
+                <p className="mt-1 text-xs text-amber-800">
+                  Substitui seu nome, e-mail e senha por valores anônimos. Suas partidas e
+                  respostas ficam preservadas como <strong>amostra anônima</strong> para a
+                  pesquisa. Você não conseguirá mais fazer login. <strong>Irreversível.</strong>
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-amber-300 text-amber-800 hover:bg-amber-100"
+                onClick={() => setDialog('anonymize')}
+              >
+                <EyeOff className="h-4 w-4" />
+                Anonimizar
+              </Button>
+            </div>
+          </div>
+
           <div className="rounded-xl border border-rose-200 bg-rose-50 p-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="font-semibold text-rose-800">Excluir minha conta</p>
                 <p className="mt-1 text-xs text-rose-700">
-                  Ação irreversível. Remove sua conta e todos os dados vinculados (partidas,
-                  respostas, ranking, sugestões).
+                  Ação irreversível. Remove sua conta <strong>e todos os dados vinculados</strong>
+                  {' '}(partidas, respostas, ranking, sugestões).
                 </p>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 className="border-rose-300 text-rose-700 hover:bg-rose-100"
-                onClick={() => setDeleteOpen(true)}
+                onClick={() => setDialog('delete')}
               >
                 <Trash2 className="h-4 w-4" />
                 Excluir
@@ -136,27 +173,41 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
-      <Dialog.Root open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <Dialog.Root open={dialog !== null} onOpenChange={(open) => !open && setDialog(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
             <div className="mb-4 flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-rose-100 text-rose-700">
+              <div
+                className={`grid h-11 w-11 place-items-center rounded-xl ${
+                  dialog === 'delete' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'
+                }`}
+              >
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <Dialog.Title className="text-lg font-bold text-slate-900">
-                Confirmar exclusão
+                {dialog === 'delete' ? 'Confirmar exclusão' : 'Confirmar anonimização'}
               </Dialog.Title>
             </div>
             <Dialog.Description className="mb-4 text-sm text-slate-600">
-              Esta ação é <strong>irreversível</strong>. Todos os seus dados serão apagados.
-              Para confirmar, informe sua senha atual.
+              {dialog === 'delete' ? (
+                <>
+                  Esta ação é <strong>irreversível</strong>. Todos os seus dados serão apagados.
+                  Para confirmar, informe sua senha atual.
+                </>
+              ) : (
+                <>
+                  Nome, e-mail e senha viram valores anônimos. Suas respostas continuam
+                  preservadas como amostra anônima da pesquisa e{' '}
+                  <strong>você não poderá mais fazer login</strong>. Para confirmar, informe sua senha atual.
+                </>
+              )}
             </Dialog.Description>
 
             <div className="mb-4">
-              <Label htmlFor="delete-password">Senha atual</Label>
+              <Label htmlFor="confirm-password">Senha atual</Label>
               <Input
-                id="delete-password"
+                id="confirm-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -165,15 +216,25 @@ export function ProfilePage() {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setDeleteOpen(false)} disabled={deleting}>
+              <Button variant="ghost" onClick={() => setDialog(null)} disabled={processing}>
                 Cancelar
               </Button>
               <Button
-                onClick={handleDelete}
-                disabled={deleting || !password}
-                className="bg-rose-600 hover:bg-rose-700"
+                onClick={handleConfirm}
+                disabled={processing || !password}
+                className={
+                  dialog === 'delete'
+                    ? 'bg-rose-600 hover:bg-rose-700'
+                    : 'bg-amber-600 hover:bg-amber-700'
+                }
               >
-                {deleting ? <Spinner /> : 'Excluir conta permanentemente'}
+                {processing ? (
+                  <Spinner />
+                ) : dialog === 'delete' ? (
+                  'Excluir conta permanentemente'
+                ) : (
+                  'Anonimizar meus dados'
+                )}
               </Button>
             </div>
           </Dialog.Content>

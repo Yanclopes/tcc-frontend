@@ -35,4 +35,13 @@ export const userService = {
   async deleteMyAccount(password: string): Promise<void> {
     await api.delete('/users/me', { data: { password } });
   },
+
+  /**
+   * LGPD L3: anonimiza a própria conta (alternativa ao delete).
+   * Preserva estado/cidade/escola/escolaridade e a coleta bruta como amostra
+   * anônima da pesquisa. Login fica bloqueado permanentemente.
+   */
+  async anonymizeMyAccount(password: string): Promise<void> {
+    await api.post('/users/me/anonymize', { password });
+  },
 };
