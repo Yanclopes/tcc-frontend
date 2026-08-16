@@ -18,6 +18,7 @@ function renderAt(path: string) {
           <Route path="/" element={<div>home publica</div>} />
           <Route element={<ProtectedRoute />}>
             <Route path="/jogar" element={<div>tela de jogo</div>} />
+            <Route path="/completar-perfil" element={<div>completar perfil</div>} />
           </Route>
           <Route element={<ProtectedRoute requireAdmin />}>
             <Route path="/dashboard" element={<div>dashboard admin</div>} />
@@ -68,5 +69,39 @@ describe('ProtectedRoute', () => {
     );
     renderAt('/dashboard');
     expect(screen.getByText('dashboard admin')).toBeInTheDocument();
+  });
+
+  it('redireciona pra /completar-perfil quando sugestao de escola foi rejeitada', () => {
+    localStorage.setItem(TOKEN_KEY, 'fake-token');
+    localStorage.setItem(
+      'ods_user',
+      JSON.stringify({
+        id: 1,
+        name: 'Yan',
+        email: 'yan@test',
+        role: 'user',
+        needsSchoolReregistration: true,
+        schoolRejectionReason: 'Nome muito generico',
+      }),
+    );
+    renderAt('/jogar');
+    expect(screen.getByText('completar perfil')).toBeInTheDocument();
+    expect(screen.queryByText('tela de jogo')).not.toBeInTheDocument();
+  });
+
+  it('libera /completar-perfil enquanto a flag esta ativa (evita loop de redirect)', () => {
+    localStorage.setItem(TOKEN_KEY, 'fake-token');
+    localStorage.setItem(
+      'ods_user',
+      JSON.stringify({
+        id: 1,
+        name: 'Yan',
+        email: 'yan@test',
+        role: 'user',
+        needsSchoolReregistration: true,
+      }),
+    );
+    renderAt('/completar-perfil');
+    expect(screen.getByText('completar perfil')).toBeInTheDocument();
   });
 });
