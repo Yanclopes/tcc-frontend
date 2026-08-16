@@ -1,5 +1,6 @@
 import { Link, Outlet } from 'react-router-dom';
 import { Navbar } from './Navbar';
+import { ReconsentModal } from './ReconsentModal';
 
 /** Casca comum: navbar no topo, conteúdo roteado no meio, rodapé embaixo. */
 export function Layout() {
@@ -20,6 +21,7 @@ export function Layout() {
           </Link>
         </p>
       </footer>
+      <ReconsentModal />
     </div>
   );
 }

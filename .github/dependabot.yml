@@ -1,0 +1,48 @@
+# Atualizacoes automaticas de dependencias.
+# Roda semanalmente; abre PRs agrupados para reduzir ruido no repo.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+    groups:
+      react-runtime:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-router*"
+          - "@radix-ui/*"
+          - "axios"
+          - "lucide-react"
+          - "socket.io-client"
+        update-types:
+          - minor
+          - patch
+      dev-tooling:
+        patterns:
+          - "@types/*"
+          - "@vitejs/*"
+          - "eslint*"
+          - "prettier"
+          - "typescript"
+          - "vite"
+          - "vitest"
+          - "happy-dom"
+          - "tailwindcss"
+        update-types:
+          - minor
+          - patch
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels:
+      - ci

@@ -13,6 +13,8 @@ interface AuthContextValue {
   isMaster: boolean;
   /** True quando a ultima sugestao de escola foi rejeitada. */
   needsSchoolReregistration: boolean;
+  /** True quando a versao vigente do termo LGPD ainda nao foi aceita. */
+  needsConsentReacceptance: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   /** Re-carrega o perfil do backend (usado ao completar-perfil apos rejeicao). */
@@ -52,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin: user?.role === 'admin' || user?.role === 'master',
       isMaster: user?.role === 'master',
       needsSchoolReregistration: !!user?.needsSchoolReregistration,
+      needsConsentReacceptance: !!user?.needsConsentReacceptance,
       async login(email, password) {
         const res = await authService.login(email, password);
         localStorage.setItem(TOKEN_KEY, res.accessToken);
@@ -70,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 ...prev,
                 needsSchoolReregistration: me.needsSchoolReregistration,
                 schoolRejectionReason: me.schoolRejectionReason,
+                needsConsentReacceptance: me.needsConsentReacceptance,
+                currentConsentVersion: me.currentConsentVersion,
               }
             : prev,
         );

@@ -20,6 +20,11 @@ export const userService = {
     return data;
   },
 
+  async acceptConsent(): Promise<{ consentVersion: string }> {
+    const { data } = await api.post<{ consentVersion: string }>('/users/me/consent');
+    return data;
+  },
+
   /** Baixa TODOS os dados pessoais como Blob (Content-Type: application/json). */
   async exportMyData(): Promise<Blob> {
     const res = await api.get('/users/me/export', { responseType: 'blob' });

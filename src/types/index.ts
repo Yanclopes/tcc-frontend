@@ -9,6 +9,8 @@ export interface AuthUser {
   role: Role;
   needsSchoolReregistration: boolean;
   schoolRejectionReason?: string | null;
+  needsConsentReacceptance: boolean;
+  currentConsentVersion: string;
 }
 
 export interface AuthResponse {
