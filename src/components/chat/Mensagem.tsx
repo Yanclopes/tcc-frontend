@@ -1,6 +1,7 @@
 import { Bot, User } from 'lucide-react';
 import type { ChatMensagem } from '@/types';
 import { cn } from '@/lib/utils';
+import { GraficoDaResposta } from './GraficoDaResposta';
 import { PassosDoAssistente } from './PassosDoAssistente';
 
 /**
@@ -80,10 +81,18 @@ export function Mensagem({ mensagem }: { mensagem: ChatMensagem }) {
       <div
         className={cn(
           'max-w-[min(46rem,85%)] rounded-2xl px-4 py-3 text-sm',
+          !doUsuario && mensagem.graficos?.length ? 'w-full' : '',
           doUsuario ? 'bg-slate-100 text-slate-800' : 'border border-slate-200 bg-white text-slate-700',
         )}
       >
         <Markdown texto={mensagem.conteudo} />
+
+        {/* Gráficos antes dos passos: são conteúdo da resposta, não auditoria. */}
+        {!doUsuario &&
+          mensagem.graficos?.map((grafico, i) => (
+            <GraficoDaResposta key={`${grafico.fonte}-${i}`} grafico={grafico} />
+          ))}
+
         {!doUsuario && mensagem.passos && <PassosDoAssistente passos={mensagem.passos} />}
       </div>
     </div>

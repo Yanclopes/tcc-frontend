@@ -15,7 +15,7 @@ const SUGESTOES = [
   'Que perguntas eu deveria revisar ou desativar agora?',
   'Algum ODS está com cobertura fraca no banco de perguntas?',
   'Em quais escolas a participação ainda não chegou?',
-  'Já dá para concluir alguma coisa sobre o ODS com pior desempenho?',
+  'Me mostra um gráfico da taxa de acerto por ODS',
 ];
 
 /**

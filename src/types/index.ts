@@ -253,11 +253,38 @@ export type PassoDoAssistente =
       erro?: string;
     };
 
+/** Como o valor do gráfico deve ser formatado. */
+export type FormatoDeValor = 'percentual' | 'contagem' | 'tempo';
+
+export interface ItemDoGrafico {
+  rotulo: string;
+  valor: number;
+  /** 0..1 — comprimento relativo da barra, calculado no back-end. */
+  proporcao: number;
+  detalhe?: string;
+  /** Só vem preenchida quando a cor carrega identidade (ODS). */
+  cor?: string;
+}
+
+/**
+ * Gráfico montado pelo back-end a partir de uma consulta real. Os números nunca
+ * vêm do modelo — ver `.specs/06-chat-ia.md`, seção "Gráficos".
+ */
+export interface EspecificacaoDeGrafico {
+  tipo: 'barras' | 'indicador';
+  titulo: string;
+  formato: FormatoDeValor;
+  itens: ItemDoGrafico[];
+  fonte: string;
+  nota?: string;
+}
+
 export interface ChatMensagem {
   id: number;
   papel: 'usuario' | 'assistente';
   conteudo: string;
   passos?: PassoDoAssistente[] | null;
+  graficos?: EspecificacaoDeGrafico[] | null;
   criadaEm: string;
 }
 
