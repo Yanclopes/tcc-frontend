@@ -12,10 +12,10 @@ import type { ChatConversa, ChatMensagem, ChatStatus } from '@/types';
 
 /** Perguntas de partida, para quem abre a tela sem saber o que pedir. */
 const SUGESTOES = [
-  'Qual ODS tem a menor taxa de acerto hoje?',
-  'Quais perguntas estão mal calibradas?',
-  'Por que não posso generalizar os resultados para a região?',
-  'O power-up de pular aparece nos dados coletados?',
+  'Que perguntas eu deveria revisar ou desativar agora?',
+  'Algum ODS está com cobertura fraca no banco de perguntas?',
+  'Em quais escolas a participação ainda não chegou?',
+  'Já dá para concluir alguma coisa sobre o ODS com pior desempenho?',
 ];
 
 /**
@@ -194,10 +194,10 @@ export function ChatPage() {
           {mensagens.length === 0 ? (
             <div className="m-auto max-w-lg text-center">
               <Bot className="mx-auto h-10 w-10 text-brand-600" />
-              <h2 className="mt-3 text-lg font-bold text-slate-900">Assistente de análise</h2>
+              <h2 className="mt-3 text-lg font-bold text-slate-900">Assistente do administrador</h2>
               <p className="mt-1 text-sm text-slate-500">
-                Pergunte sobre a metodologia, as métricas ou os dados já coletados. Números vêm de
-                consulta ao banco no momento da pergunta.
+                Pergunte o que revisar, onde a participação não chegou ou o que fazer com um
+                número. Os dados vêm de consulta ao banco no momento da pergunta.
               </p>
               <div className="mt-5 grid gap-2 text-left">
                 {SUGESTOES.map((s) => (
