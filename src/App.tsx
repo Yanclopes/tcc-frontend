@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute';
 import { CompleteProfilePage } from '@/pages/CompleteProfilePage';
+import { ChatPage } from '@/pages/admin/ChatPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { GamePage } from '@/pages/GamePage';
 import { HomePage } from '@/pages/HomePage';
@@ -33,6 +34,7 @@ export default function App() {
         {/* Área administrativa exige papel admin (ou master). */}
         <Route element={<ProtectedRoute requireAdmin />}>
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="admin/chat" element={<ChatPage />} />
           <Route path="admin/escolas" element={<SchoolsAdminPage />} />
           <Route path="admin/perguntas" element={<QuestionsAdminPage />} />
         </Route>

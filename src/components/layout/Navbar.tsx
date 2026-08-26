@@ -1,4 +1,4 @@
-import { BarChart3, Crown, LogOut, Menu, School, ScrollText, Trophy, UserCircle2, X } from 'lucide-react';
+import { BarChart3, Bot, Crown, LogOut, Menu, School, ScrollText, Trophy, UserCircle2, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +21,7 @@ export function Navbar() {
     ...(isAdmin
       ? [
           { to: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+          { to: '/admin/chat', label: 'Assistente', icon: Bot },
           { to: '/admin/perguntas', label: 'Perguntas', icon: ScrollText },
           { to: '/admin/escolas', label: 'Escolas', icon: School },
         ]

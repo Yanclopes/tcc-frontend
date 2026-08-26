@@ -214,3 +214,60 @@ export interface DashboardFilter {
   to?: string;
   level?: RegionLevel;
 }
+
+// ---------------------------------------------------------------------------
+// Chat com IA — assistente de análise (admin). Ver .specs/06-chat-ia.md.
+// ---------------------------------------------------------------------------
+
+export interface ChatConversa {
+  id: string;
+  titulo: string;
+  criadaEm: string;
+  atualizadaEm: string;
+}
+
+/** Trecho da base de conhecimento que sustentou a resposta. */
+export interface TrechoCitado {
+  trechoId: number;
+  documentoId: number;
+  fonte: string;
+  titulo: string;
+  texto: string;
+  similaridade: number;
+}
+
+/**
+ * Um passo do raciocínio do assistente. É o que torna o RAG auditável na
+ * interface: mostra o que foi recuperado e quais consultas foram feitas.
+ */
+export type PassoDoAssistente =
+  | {
+      tipo: 'recuperacao';
+      trechos: Array<{ fonte: string; titulo: string; similaridade: number }>;
+    }
+  | {
+      tipo: 'ferramenta';
+      nome: string;
+      argumentos: Record<string, unknown>;
+      resumo: string;
+      erro?: string;
+    };
+
+export interface ChatMensagem {
+  id: number;
+  papel: 'usuario' | 'assistente';
+  conteudo: string;
+  passos?: PassoDoAssistente[] | null;
+  criadaEm: string;
+}
+
+export interface ChatResposta {
+  mensagem: ChatMensagem;
+  trechosCitados: TrechoCitado[];
+}
+
+export interface ChatStatus {
+  habilitado: boolean;
+  trechosIndexados: number;
+  modelo: string;
+}
