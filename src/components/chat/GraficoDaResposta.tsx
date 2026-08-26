@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { HBarChart, type BarItem } from '@/components/dashboard/HBarChart';
 import { cn, formatInt, formatMs } from '@/lib/utils';
 import type { EspecificacaoDeGrafico, FormatoDeValor, ItemDoGrafico } from '@/types';
+import { BarrasAgrupadas } from './BarrasAgrupadas';
+import { Heatmap } from './Heatmap';
 
 /** Cor única para séries sem identidade própria — a mesma do dashboard. */
 const COR_PADRAO = '#0a97d9';
@@ -59,6 +61,56 @@ function TabelaDoGrafico({
   );
 }
 
+/** Tabela equivalente ao heatmap — mesma exigência das barras. */
+function TabelaDaMatriz({
+  grafico,
+  formato,
+}: {
+  grafico: EspecificacaoDeGrafico;
+  formato: FormatoDeValor;
+}) {
+  const porChave = new Map((grafico.celulas ?? []).map((c) => [`${c.linha}|${c.coluna}`, c]));
+
+  return (
+    <div className="mt-2 overflow-x-auto">
+      <table className="w-full text-left text-xs">
+        <thead>
+          <tr className="border-b border-slate-200 text-slate-500">
+            <th scope="col" className="py-1.5 pr-3 font-medium">
+              Categoria
+            </th>
+            {grafico.colunas?.map((coluna) => (
+              <th key={coluna} scope="col" className="py-1.5 pr-3 text-right font-medium">
+                {coluna}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {grafico.linhas?.map((linha) => (
+            <tr key={linha} className="border-b border-slate-100 last:border-0">
+              <th scope="row" className="py-1.5 pr-3 font-normal text-slate-700">
+                {linha}
+              </th>
+              {grafico.colunas?.map((coluna) => {
+                const celula = porChave.get(`${linha}|${coluna}`);
+                return (
+                  <td
+                    key={coluna}
+                    className="py-1.5 pr-3 text-right tabular-nums text-slate-900"
+                  >
+                    {celula && celula.valor !== null ? formatar(celula.valor, formato) : '—'}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 /**
  * Renderiza um gráfico devolvido pelo assistente.
  *
@@ -83,7 +135,7 @@ export function GraficoDaResposta({ grafico }: { grafico: EspecificacaoDeGrafico
     <figure className="mt-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
       <figcaption className="mb-3 flex items-start justify-between gap-3">
         <span className="text-sm font-semibold text-slate-800">{grafico.titulo}</span>
-        {grafico.tipo === 'barras' && (
+        {grafico.tipo !== 'indicador' && (
           <button
             type="button"
             onClick={() => setMostrarTabela((v) => !v)}
@@ -110,6 +162,27 @@ export function GraficoDaResposta({ grafico }: { grafico: EspecificacaoDeGrafico
           <p className="mt-0.5 text-sm text-slate-600">{unico.rotulo}</p>
           {unico.detalhe && <p className="text-xs text-slate-400">{unico.detalhe}</p>}
         </div>
+      ) : grafico.tipo === 'matriz' ? (
+        mostrarTabela ? (
+          <TabelaDaMatriz grafico={grafico} formato={grafico.formato} />
+        ) : (
+          <Heatmap
+            celulas={grafico.celulas ?? []}
+            linhas={grafico.linhas ?? []}
+            colunas={grafico.colunas ?? []}
+            formatar={(v) => formatar(v, grafico.formato)}
+          />
+        )
+      ) : grafico.tipo === 'barras_agrupadas' ? (
+        mostrarTabela ? (
+          <TabelaDoGrafico itens={grafico.itens} formato={grafico.formato} />
+        ) : (
+          <BarrasAgrupadas
+            itens={grafico.itens}
+            series={grafico.series ?? []}
+            formatar={(v) => formatar(v, grafico.formato)}
+          />
+        )
       ) : mostrarTabela ? (
         <TabelaDoGrafico itens={grafico.itens} formato={grafico.formato} />
       ) : (

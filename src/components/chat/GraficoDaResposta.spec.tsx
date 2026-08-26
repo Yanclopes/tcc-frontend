@@ -24,6 +24,37 @@ const indicador: EspecificacaoDeGrafico = {
   itens: [{ rotulo: 'ODS 6 — Água', valor: 50, proporcao: 1, detalhe: '10 respostas' }],
 };
 
+const matriz: EspecificacaoDeGrafico = {
+  tipo: 'matriz',
+  titulo: 'Escolaridade × ODS',
+  formato: 'percentual',
+  fonte: 'desempenho_por_escolaridade',
+  itens: [],
+  linhas: ['Ensino Médio', 'Ensino Superior'],
+  colunas: ['ODS 2', 'ODS 10'],
+  celulas: [
+    { linha: 'Ensino Médio', coluna: 'ODS 2', valor: 70, intensidade: 1, detalhe: '10 respostas' },
+    { linha: 'Ensino Superior', coluna: 'ODS 2', valor: 50, intensidade: 0.7 },
+    // O cruzamento Ensino Médio × ODS 10 não existe: célula sem dado.
+  ],
+  nota: '1 cruzamento(s) sem nenhuma resposta.',
+};
+
+const agrupado: EspecificacaoDeGrafico = {
+  tipo: 'barras_agrupadas',
+  titulo: 'Cadastradas × respondidas',
+  formato: 'contagem',
+  fonte: 'cobertura_do_catalogo',
+  itens: [
+    { rotulo: 'ODS 4', valor: 3, proporcao: 1 },
+    { rotulo: 'ODS 3', valor: 0, proporcao: 0 },
+  ],
+  series: [
+    { nome: 'Cadastradas', cor: '#0a97d9', valores: [3, 0] },
+    { nome: 'Já respondidas', cor: '#f59e0b', valores: [2, 0] },
+  ],
+};
+
 describe('GraficoDaResposta', () => {
   it('mostra o título e o valor de cada barra', () => {
     render(<GraficoDaResposta grafico={barras} />);
@@ -97,6 +128,63 @@ describe('GraficoDaResposta', () => {
 
     const rotulo = container.querySelector('.truncate');
     expect(rotulo).not.toBeNull();
+  });
+
+  describe('matriz', () => {
+    it('desenha os dois eixos do cruzamento', () => {
+      render(<GraficoDaResposta grafico={matriz} />);
+
+      expect(screen.getByRole('rowheader', { name: 'Ensino Médio' })).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: '2' })).toBeInTheDocument();
+    });
+
+    it('escreve o valor dentro da celula, nao so na cor', () => {
+      // Quem nao distingue as cores precisa conseguir ler o numero.
+      render(<GraficoDaResposta grafico={matriz} />);
+
+      expect(screen.getByText('70')).toBeInTheDocument();
+    });
+
+    it('distingue cruzamento sem dado de valor zero', () => {
+      render(<GraficoDaResposta grafico={matriz} />);
+
+      expect(screen.getByTitle(/Ensino Médio · ODS 10: sem resposta/)).toBeInTheDocument();
+    });
+
+    it('mostra a legenda da escala', () => {
+      // Sem legenda a intensidade da cor nao tem referencia.
+      render(<GraficoDaResposta grafico={matriz} />);
+
+      expect(screen.getByText('menor')).toBeInTheDocument();
+      expect(screen.getByText('maior')).toBeInTheDocument();
+    });
+
+    it('oferece tabela equivalente', async () => {
+      render(<GraficoDaResposta grafico={matriz} />);
+
+      await userEvent.click(screen.getByRole('button', { name: /tabela/i }));
+
+      expect(screen.getByRole('columnheader', { name: 'ODS 2' })).toBeInTheDocument();
+      expect(screen.getByRole('cell', { name: '70,0%' })).toBeInTheDocument();
+    });
+  });
+
+  describe('barras agrupadas', () => {
+    it('sempre mostra a legenda das duas series', () => {
+      // Com duas series a legenda e obrigatoria: identidade nunca so por cor.
+      render(<GraficoDaResposta grafico={agrupado} />);
+
+      expect(screen.getByText('Cadastradas')).toBeInTheDocument();
+      expect(screen.getByText('Já respondidas')).toBeInTheDocument();
+    });
+
+    it('rotula o valor de cada barra das duas series', () => {
+      render(<GraficoDaResposta grafico={agrupado} />);
+
+      expect(screen.getByText('ODS 4')).toBeInTheDocument();
+      expect(screen.getAllByText('3').length).toBeGreaterThan(0);
+      expect(screen.getByText('2')).toBeInTheDocument();
+    });
   });
 
   it('formata contagem sem casa decimal nem percentual', () => {

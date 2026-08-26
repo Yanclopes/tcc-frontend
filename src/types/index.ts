@@ -270,11 +270,34 @@ export interface ItemDoGrafico {
  * Gráfico montado pelo back-end a partir de uma consulta real. Os números nunca
  * vêm do modelo — ver `.specs/06-chat-ia.md`, seção "Gráficos".
  */
+/** Uma célula do heatmap: o cruzamento de duas dimensões. */
+export interface CelulaDoGrafico {
+  linha: string;
+  coluna: string;
+  /** null = cruzamento sem dado — diferente de ter valor zero. */
+  valor: number | null;
+  /** 0..1 — posição na rampa de cor. */
+  intensidade: number;
+  detalhe?: string;
+}
+
+/** Uma série nomeada, para barras agrupadas. */
+export interface SerieDoGrafico {
+  nome: string;
+  cor: string;
+  /** Valores na mesma ordem de `itens`. */
+  valores: number[];
+}
+
 export interface EspecificacaoDeGrafico {
-  tipo: 'barras' | 'indicador';
+  tipo: 'barras' | 'indicador' | 'barras_agrupadas' | 'matriz';
   titulo: string;
   formato: FormatoDeValor;
   itens: ItemDoGrafico[];
+  series?: SerieDoGrafico[];
+  celulas?: CelulaDoGrafico[];
+  linhas?: string[];
+  colunas?: string[];
   fonte: string;
   nota?: string;
 }
