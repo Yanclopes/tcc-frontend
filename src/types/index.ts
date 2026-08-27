@@ -340,6 +340,8 @@ export interface ChatMensagem {
   passos?: PassoDoAssistente[] | null;
   graficos?: EspecificacaoDeGrafico[] | null;
   acoes?: AcaoProposta[] | null;
+  /** Respostas rápidas: clicar envia a frase como próxima pergunta. */
+  sugestoes?: string[] | null;
   criadaEm: string;
 }
 

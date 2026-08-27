@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { AcaoProposta } from './AcaoProposta';
 import { GraficoDaResposta } from './GraficoDaResposta';
 import { PassosDoAssistente } from './PassosDoAssistente';
+import { RespostasRapidas } from './RespostasRapidas';
 
 /**
  * Renderiza markdown simples sem dependência nova: negrito, código inline,
@@ -64,7 +65,16 @@ function Markdown({ texto }: { texto: string }) {
   );
 }
 
-export function Mensagem({ mensagem }: { mensagem: ChatMensagem }) {
+export function Mensagem({
+  mensagem,
+  onEscolherSugestao,
+  sugestoesDesabilitadas,
+}: {
+  mensagem: ChatMensagem;
+  /** Só a última mensagem oferece as respostas rápidas. */
+  onEscolherSugestao?: (opcao: string) => void;
+  sugestoesDesabilitadas?: boolean;
+}) {
   const doUsuario = mensagem.papel === 'usuario';
 
   return (
@@ -97,6 +107,14 @@ export function Mensagem({ mensagem }: { mensagem: ChatMensagem }) {
         {/* Ações antes dos passos: exigem decisão, não são auditoria. */}
         {!doUsuario &&
           mensagem.acoes?.map((acao) => <AcaoProposta key={acao.id} acao={acao} />)}
+
+        {!doUsuario && onEscolherSugestao && mensagem.sugestoes && (
+          <RespostasRapidas
+            opcoes={mensagem.sugestoes}
+            onEscolher={onEscolherSugestao}
+            desabilitado={sugestoesDesabilitadas}
+          />
+        )}
 
         {!doUsuario && mensagem.passos && <PassosDoAssistente passos={mensagem.passos} />}
       </div>

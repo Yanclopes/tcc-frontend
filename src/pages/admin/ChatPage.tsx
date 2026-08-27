@@ -214,7 +214,18 @@ export function ChatPage() {
               </div>
             </div>
           ) : (
-            mensagens.map((m) => <Mensagem key={m.id} mensagem={m} />)
+            mensagens.map((m, i) => (
+              <Mensagem
+                key={m.id}
+                mensagem={m}
+                // Só a última mensagem oferece respostas rápidas: botões de um
+                // passo antigo levariam a conversa de volta para trás.
+                onEscolherSugestao={
+                  i === mensagens.length - 1 ? (opcao) => void enviar(opcao) : undefined
+                }
+                sugestoesDesabilitadas={enviando}
+              />
+            ))
           )}
 
           {enviando && (
