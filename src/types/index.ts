@@ -216,7 +216,7 @@ export interface DashboardFilter {
 }
 
 // ---------------------------------------------------------------------------
-// Chat com IA — assistente de análise (admin). Ver .specs/06-chat-ia.md.
+// Chat com IA — assistente de análise (admin). Ver tcc-docs/specs/06-chat-ia.md.
 // ---------------------------------------------------------------------------
 
 export interface ChatConversa {
@@ -268,7 +268,7 @@ export interface ItemDoGrafico {
 
 /**
  * Gráfico montado pelo back-end a partir de uma consulta real. Os números nunca
- * vêm do modelo — ver `.specs/06-chat-ia.md`, seção "Gráficos".
+ * vêm do modelo — ver `tcc-docs/specs/06-chat-ia.md`, seção "Gráficos".
  */
 /** Uma célula do heatmap: o cruzamento de duas dimensões. */
 export interface CelulaDoGrafico {
@@ -318,7 +318,7 @@ export interface AvisoDaAcao {
 /**
  * Ação proposta pelo assistente — **não executada**. A execução depende do
  * clique do administrador e passa pelo endpoint de sempre, com guard e
- * auditoria. Ver `.specs/06-chat-ia.md`, seção "Ações administrativas".
+ * auditoria. Ver `tcc-docs/specs/06-chat-ia.md`, seção "Ações administrativas".
  */
 export interface AcaoProposta {
   id: string;

@@ -3,7 +3,7 @@ import type { AcaoProposta, ChatConversa, ChatMensagem, ChatResposta, ChatStatus
 
 /**
  * Assistente de análise com RAG (admin). A chave da OpenAI vive apenas no
- * back-end — o front nunca a vê. Ver .specs/06-chat-ia.md.
+ * back-end — o front nunca a vê. Ver tcc-docs/specs/06-chat-ia.md.
  */
 export const chatService = {
   /** Diz se o assistente está configurado e quanto há indexado. */
@@ -51,7 +51,7 @@ export const chatService = {
  * Dispara o endpoint administrativo de sempre — o mesmo que as telas de
  * Perguntas e Escolas usam —, com `RolesGuard`, validação de DTO e
  * `audit_log`. O assistente montou o formulário; quem submete é o
- * administrador, ao clicar. Ver `.specs/06-chat-ia.md`.
+ * administrador, ao clicar. Ver `tcc-docs/specs/06-chat-ia.md`.
  */
 export async function executarAcao(acao: AcaoProposta): Promise<void> {
   const { metodo, caminho, corpo } = acao.requisicao;

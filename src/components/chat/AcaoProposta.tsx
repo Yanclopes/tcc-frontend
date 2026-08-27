@@ -15,7 +15,7 @@ type Estado = 'pendente' | 'executando' | 'confirmada' | 'descartada';
  * O assistente **não executa nada**: ele preenche o formulário e este cartão
  * mostra exatamente o que vai acontecer. A escrita só ocorre no clique em
  * "Confirmar", pelo endpoint administrativo de sempre — com guard, validação e
- * auditoria. Ver `.specs/06-chat-ia.md`, seção "Ações administrativas".
+ * auditoria. Ver `tcc-docs/specs/06-chat-ia.md`, seção "Ações administrativas".
  *
  * O botão de confirmar é deliberadamente o secundário, e os avisos ficam acima
  * dele: a leitura vem antes do clique.

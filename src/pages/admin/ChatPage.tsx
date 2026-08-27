@@ -28,7 +28,7 @@ const SUGESTOES = [
 ];
 
 /**
- * Assistente de análise com RAG (admin). Ver .specs/06-chat-ia.md.
+ * Assistente de análise com RAG (admin). Ver tcc-docs/specs/06-chat-ia.md.
  *
  * Sem streaming na v1: a resposta chega inteira. Em compensação vem com os
  * passos (o que foi recuperado, quais consultas rodaram), que é o que dá
