@@ -42,6 +42,29 @@ describe('MenuAdmin', () => {
     expect(screen.getByRole('menuitem', { name: /assistente/i })).toBeInTheDocument();
   });
 
+  it('aplica as classes reais no item, e nao o codigo da funcao', async () => {
+    // Regressao: com className em forma de FUNCAO dentro de asChild, o Radix
+    // concatenava e o atributo class virava o codigo-fonte. O item ficava sem
+    // estilo, e sem `flex` o icone empilhava sobre o texto.
+    renderizar();
+    await userEvent.click(screen.getByRole('button', { name: /administração/i }));
+
+    const item = await screen.findByRole('menuitem', { name: /dashboard/i });
+
+    expect(item.className).not.toContain('=>');
+    expect(item.className).toContain('flex');
+    expect(item.className).toContain('items-center');
+  });
+
+  it('marca o item da rota atual', async () => {
+    renderizar(links, '/dashboard');
+    await userEvent.click(screen.getByRole('button', { name: /administração/i }));
+
+    const item = await screen.findByRole('menuitem', { name: /dashboard/i });
+
+    expect(item.className).toMatch(/brand/);
+  });
+
   it('destaca o gatilho quando a rota atual esta dentro do menu', () => {
     // Sem isso, dentro do admin a barra nao indicaria onde voce esta.
     renderizar(links, '/admin/chat');

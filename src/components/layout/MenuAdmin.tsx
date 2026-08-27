@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ChevronDown, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 export interface LinkDoMenu {
@@ -46,21 +46,25 @@ export function MenuAdmin({ links }: { links: LinkDoMenu[] }) {
           className="z-50 min-w-[13rem] rounded-xl border border-slate-200 bg-white p-1 shadow-lg"
         >
           {links.map((link) => (
+            // `asChild` exige filho unico, entao a nota fica aqui fora:
+            // className precisa ser STRING, nunca a forma de funcao do NavLink.
+            // O asChild do Radix concatena o className dele com o do filho, e
+            // uma funcao vira o proprio codigo-fonte no atributo class. O link
+            // ficava sem estilo algum — sem `flex`, o icone empilhava sobre o
+            // texto.
             <DropdownMenu.Item key={link.to} asChild>
-              <NavLink
+              <Link
                 to={link.to}
-                className={({ isActive }) =>
-                  cn(
-                    'flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none',
-                    isActive
-                      ? 'bg-brand-50 font-medium text-brand-700'
-                      : 'text-slate-700 data-[highlighted]:bg-slate-100',
-                  )
-                }
+                className={cn(
+                  'flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none',
+                  pathname === link.to
+                    ? 'bg-brand-50 font-medium text-brand-700'
+                    : 'text-slate-700 data-[highlighted]:bg-slate-100',
+                )}
               >
-                {link.icon && <link.icon className="h-4 w-4 shrink-0" />}
+                {link.icon && <link.icon className="h-4 w-4 shrink-0" aria-hidden />}
                 {link.label}
-              </NavLink>
+              </Link>
             </DropdownMenu.Item>
           ))}
         </DropdownMenu.Content>
