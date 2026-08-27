@@ -151,115 +151,127 @@ export function ChatPage() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[16rem_1fr]">
-      {/* Lateral de conversas */}
-      <aside className="space-y-2">
-        <Button onClick={novaConversa} variant="outline" className="w-full justify-start gap-2">
-          <MessageSquarePlus className="h-4 w-4" /> Nova conversa
-        </Button>
-
-        <div className="space-y-1">
-          {conversas.map((c) => (
-            <div
-              key={c.id}
-              className={cn(
-                'group flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm',
-                atualId === c.id ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50',
-              )}
-            >
-              <button
-                type="button"
-                onClick={() => void abrir(c.id)}
-                className="min-w-0 flex-1 truncate text-left"
-                title={c.titulo}
-              >
-                {c.titulo}
-              </button>
-              <button
-                type="button"
-                onClick={() => void remover(c.id)}
-                aria-label={`Apagar conversa ${c.titulo}`}
-                className="opacity-0 transition group-hover:opacity-100 hover:text-rose-600"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      {/* Conversa */}
-      <Card className="flex min-h-[70vh] flex-col">
-        <CardContent className="flex flex-1 flex-col gap-4 overflow-y-auto">
-          {mensagens.length === 0 ? (
-            <div className="m-auto max-w-lg text-center">
-              <Bot className="mx-auto h-10 w-10 text-brand-600" />
-              <h2 className="mt-3 text-lg font-bold text-slate-900">Assistente do administrador</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Pergunte o que revisar, onde a participação não chegou ou o que fazer com um
-                número. Os dados vêm de consulta ao banco no momento da pergunta.
-              </p>
-              <div className="mt-5 grid gap-2 text-left">
-                {SUGESTOES.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => void enviar(s)}
-                    className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:border-brand-300 hover:bg-brand-50"
-                  >
-                    <Sparkles className="h-3.5 w-3.5 shrink-0 text-brand-500" />
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            mensagens.map((m, i) => (
-              <Mensagem
-                key={m.id}
-                mensagem={m}
-                // Só a última mensagem oferece respostas rápidas: botões de um
-                // passo antigo levariam a conversa de volta para trás.
-                onEscolherSugestao={
-                  i === mensagens.length - 1 ? (opcao) => void enviar(opcao) : undefined
-                }
-                sugestoesDesabilitadas={enviando}
-              />
-            ))
-          )}
-
-          {enviando && (
-            <div className="flex items-center gap-2 pl-11 text-sm text-slate-500">
-              <Spinner className="h-4 w-4" />
-              Consultando a base e os dados...
-            </div>
-          )}
-          <div ref={fimDaLista} />
-        </CardContent>
-
-        <form onSubmit={aoSubmeter} className="flex gap-2 border-t border-slate-200 p-3">
-          <input
-            value={pergunta}
-            onChange={(e) => setPergunta(e.target.value)}
-            placeholder="Pergunte sobre o levantamento..."
-            aria-label="Pergunta"
-            maxLength={2000}
-            disabled={enviando}
-            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 disabled:bg-slate-50"
-          />
-          <Button type="submit" disabled={enviando || !pergunta.trim()} className="gap-2">
-            <Send className="h-4 w-4" />
-            Enviar
+    <>
+      {/* Altura amarrada à viewport: sem um teto, o cartão cresce com o
+          conteúdo e o overflow-y-auto de dentro nunca chega a agir — mensagem
+          longa (ou um gráfico de 15 barras) esticava a caixa e empurrava o
+          campo de digitação para fora da tela. */}
+      <div className="grid gap-4 lg:h-[calc(100vh-13rem)] lg:grid-cols-[16rem_1fr]">
+        {/* Lateral de conversas */}
+        <aside className="flex min-h-0 flex-col gap-2">
+          <Button onClick={novaConversa} variant="outline" className="w-full justify-start gap-2">
+            <MessageSquarePlus className="h-4 w-4" /> Nova conversa
           </Button>
-        </form>
-      </Card>
+
+          {/* A lista rola dentro de si: com dezenas de conversas ela empurrava o
+            resto da página para baixo. */}
+          <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
+            {conversas.map((c) => (
+              <div
+                key={c.id}
+                className={cn(
+                  'group flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm',
+                  atualId === c.id
+                    ? 'bg-slate-100 text-slate-900'
+                    : 'text-slate-600 hover:bg-slate-50',
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => void abrir(c.id)}
+                  className="min-w-0 flex-1 truncate text-left"
+                  title={c.titulo}
+                >
+                  {c.titulo}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void remover(c.id)}
+                  aria-label={`Apagar conversa ${c.titulo}`}
+                  className="opacity-0 transition group-hover:opacity-100 hover:text-rose-600"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        {/* Conversa */}
+        <Card className="flex min-h-[70vh] flex-col lg:h-full lg:min-h-0">
+          <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+            {mensagens.length === 0 ? (
+              <div className="m-auto max-w-lg text-center">
+                <Bot className="mx-auto h-10 w-10 text-brand-600" />
+                <h2 className="mt-3 text-lg font-bold text-slate-900">
+                  Assistente do administrador
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Pergunte o que revisar, onde a participação não chegou ou o que fazer com um
+                  número. Os dados vêm de consulta ao banco no momento da pergunta.
+                </p>
+                <div className="mt-5 grid gap-2 text-left">
+                  {SUGESTOES.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => void enviar(s)}
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:border-brand-300 hover:bg-brand-50"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 shrink-0 text-brand-500" />
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              mensagens.map((m, i) => (
+                <Mensagem
+                  key={m.id}
+                  mensagem={m}
+                  // Só a última mensagem oferece respostas rápidas: botões de um
+                  // passo antigo levariam a conversa de volta para trás.
+                  onEscolherSugestao={
+                    i === mensagens.length - 1 ? (opcao) => void enviar(opcao) : undefined
+                  }
+                  sugestoesDesabilitadas={enviando}
+                />
+              ))
+            )}
+
+            {enviando && (
+              <div className="flex items-center gap-2 pl-11 text-sm text-slate-500">
+                <Spinner className="h-4 w-4" />
+                Consultando a base e os dados...
+              </div>
+            )}
+            <div ref={fimDaLista} />
+          </CardContent>
+
+          <form onSubmit={aoSubmeter} className="flex gap-2 border-t border-slate-200 p-3">
+            <input
+              value={pergunta}
+              onChange={(e) => setPergunta(e.target.value)}
+              placeholder="Pergunte sobre o levantamento..."
+              aria-label="Pergunta"
+              maxLength={2000}
+              disabled={enviando}
+              className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 disabled:bg-slate-50"
+            />
+            <Button type="submit" disabled={enviando || !pergunta.trim()} className="gap-2">
+              <Send className="h-4 w-4" />
+              Enviar
+            </Button>
+          </form>
+        </Card>
+      </div>
 
       {status && (
-        <p className="text-xs text-slate-400 lg:col-span-2">
+        <p className="mt-3 text-xs text-slate-400">
           {status.trechosIndexados} trechos indexados · modelo {status.modelo} · as perguntas são
           registradas na trilha de auditoria (LGPD)
         </p>
       )}
-    </div>
+    </>
   );
 }
