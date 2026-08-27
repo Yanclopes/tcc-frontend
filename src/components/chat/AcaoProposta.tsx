@@ -53,9 +53,11 @@ export function AcaoProposta({ acao }: { acao: Proposta }) {
       <div className="px-4 py-3">
         <dl className="space-y-1.5 text-sm">
           {acao.detalhes.map((detalhe, i) => (
-            <div key={`${detalhe.rotulo}-${i}`} className="flex gap-2">
-              <dt className="w-36 shrink-0 text-slate-500">{detalhe.rotulo}</dt>
-              <dd className="min-w-0 flex-1 break-words text-slate-800">{detalhe.valor}</dd>
+            // Empilha em tela estreita: uma coluna fixa de rotulo comia metade
+            // da largura e o valor ficava num filete de 3 palavras por linha.
+            <div key={`${detalhe.rotulo}-${i}`} className="sm:flex sm:gap-2">
+              <dt className="text-slate-500 sm:w-36 sm:shrink-0">{detalhe.rotulo}</dt>
+              <dd className="min-w-0 break-words text-slate-800 sm:flex-1">{detalhe.valor}</dd>
             </div>
           ))}
         </dl>
@@ -83,7 +85,7 @@ export function AcaoProposta({ acao }: { acao: Proposta }) {
         )}
       </div>
 
-      <footer className="flex items-center gap-2 border-t border-slate-200 px-4 py-2.5">
+      <footer className="flex flex-wrap items-center gap-2 border-t border-slate-200 px-4 py-2.5">
         {estado === 'confirmada' ? (
           <p className="flex items-center gap-1.5 text-sm font-medium text-emerald-700">
             <Check className="h-4 w-4" /> Executada
@@ -117,7 +119,7 @@ export function AcaoProposta({ acao }: { acao: Proposta }) {
               Descartar
             </Button>
             {atencoes.length > 0 && (
-              <span className="ml-auto text-xs text-amber-700">
+              <span className="text-xs text-amber-700 sm:ml-auto">
                 {atencoes.length === 1 ? 'Leia o aviso' : `Leia os ${atencoes.length} avisos`} antes
               </span>
             )}

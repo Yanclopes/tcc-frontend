@@ -15,21 +15,19 @@ function Markdown({ texto }: { texto: string }) {
   const blocos = texto.split(/\n{2,}/);
 
   const inline = (linha: string) =>
-    linha
-      .split(/(\*\*[^*]+\*\*|`[^`]+`)/g)
-      .map((parte, i) => {
-        if (parte.startsWith('**') && parte.endsWith('**')) {
-          return <strong key={i}>{parte.slice(2, -2)}</strong>;
-        }
-        if (parte.startsWith('`') && parte.endsWith('`')) {
-          return (
-            <code key={i} className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">
-              {parte.slice(1, -1)}
-            </code>
-          );
-        }
-        return parte;
-      });
+    linha.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((parte, i) => {
+      if (parte.startsWith('**') && parte.endsWith('**')) {
+        return <strong key={i}>{parte.slice(2, -2)}</strong>;
+      }
+      if (parte.startsWith('`') && parte.endsWith('`')) {
+        return (
+          <code key={i} className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[13px]">
+            {parte.slice(1, -1)}
+          </code>
+        );
+      }
+      return parte;
+    });
 
   return (
     <div className="space-y-2">
@@ -91,9 +89,13 @@ export function Mensagem({
 
       <div
         className={cn(
-          'max-w-[min(46rem,85%)] rounded-2xl px-4 py-3 text-sm',
+          // Em tela estreita 85% deixa o texto num filete: no mobile o balao
+          // usa quase toda a largura, e o teto de 46rem so vale no desktop.
+          'min-w-0 max-w-[calc(100%-2.75rem)] rounded-2xl px-4 py-3 text-sm sm:max-w-[min(46rem,85%)]',
           !doUsuario && (mensagem.graficos?.length || mensagem.acoes?.length) ? 'w-full' : '',
-          doUsuario ? 'bg-slate-100 text-slate-800' : 'border border-slate-200 bg-white text-slate-700',
+          doUsuario
+            ? 'bg-slate-100 text-slate-800'
+            : 'border border-slate-200 bg-white text-slate-700',
         )}
       >
         <Markdown texto={mensagem.conteudo} />
@@ -105,8 +107,7 @@ export function Mensagem({
           ))}
 
         {/* Ações antes dos passos: exigem decisão, não são auditoria. */}
-        {!doUsuario &&
-          mensagem.acoes?.map((acao) => <AcaoProposta key={acao.id} acao={acao} />)}
+        {!doUsuario && mensagem.acoes?.map((acao) => <AcaoProposta key={acao.id} acao={acao} />)}
 
         {!doUsuario && onEscolherSugestao && mensagem.sugestoes && (
           <RespostasRapidas

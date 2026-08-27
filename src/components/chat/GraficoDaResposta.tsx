@@ -132,7 +132,7 @@ export function GraficoDaResposta({ grafico }: { grafico: EspecificacaoDeGrafico
   const unico = grafico.itens[0];
 
   return (
-    <figure className="mt-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+    <figure className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/60 p-3 sm:p-4">
       <figcaption className="mb-3 flex items-start justify-between gap-3">
         <span className="text-sm font-semibold text-slate-800">{grafico.titulo}</span>
         {grafico.tipo !== 'indicador' && (

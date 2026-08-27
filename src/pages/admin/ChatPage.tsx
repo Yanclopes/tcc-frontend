@@ -1,4 +1,13 @@
-import { Bot, MessageSquarePlus, Send, Sparkles, Trash2, TriangleAlert } from 'lucide-react';
+import {
+  Bot,
+  ChevronDown,
+  MessageSquarePlus,
+  MessagesSquare,
+  Send,
+  Sparkles,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Mensagem } from '@/components/chat/Mensagem';
 import { Button } from '@/components/ui/Button';
@@ -35,6 +44,8 @@ export function ChatPage() {
   const [pergunta, setPergunta] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [enviando, setEnviando] = useState(false);
+  /** No mobile a lista de conversas comeca recolhida — ver o layout abaixo. */
+  const [listaAberta, setListaAberta] = useState(false);
 
   const fimDaLista = useRef<HTMLDivElement>(null);
 
@@ -54,6 +65,7 @@ export function ChatPage() {
 
   const abrir = async (id: string) => {
     setAtualId(id);
+    setListaAberta(false);
     try {
       const { mensagens: msgs } = await chatService.obterConversa(id);
       setMensagens(msgs);
@@ -63,6 +75,7 @@ export function ChatPage() {
   };
 
   const novaConversa = () => {
+    setListaAberta(false);
     setAtualId(undefined);
     setMensagens([]);
     setPergunta('');
@@ -156,16 +169,44 @@ export function ChatPage() {
           conteúdo e o overflow-y-auto de dentro nunca chega a agir — mensagem
           longa (ou um gráfico de 15 barras) esticava a caixa e empurrava o
           campo de digitação para fora da tela. */}
-      <div className="grid gap-4 lg:h-[calc(100vh-13rem)] lg:grid-cols-[16rem_1fr]">
-        {/* Lateral de conversas */}
-        <aside className="flex min-h-0 flex-col gap-2">
-          <Button onClick={novaConversa} variant="outline" className="w-full justify-start gap-2">
-            <MessageSquarePlus className="h-4 w-4" /> Nova conversa
-          </Button>
+      <div className="grid h-[calc(100dvh-9rem)] gap-4 lg:h-[calc(100vh-13rem)] lg:grid-cols-[16rem_1fr]">
+        {/*
+          No mobile a lista vira um painel recolhivel. Empilhada acima do chat
+          — que e o que um grid de coluna unica faz —, era preciso rolar todas
+          as conversas antes de chegar nas mensagens.
+          100dvh em vez de 100vh: no celular a barra do navegador entra e sai, e
+          vh nao acompanha, escondendo o campo de digitacao atras dela.
+        */}
+        <aside
+          className={cn('flex min-h-0 flex-col gap-2', listaAberta ? 'max-h-[45%]' : 'shrink-0')}
+        >
+          <div className="flex gap-2">
+            <Button onClick={novaConversa} variant="outline" className="flex-1 justify-start gap-2">
+              <MessageSquarePlus className="h-4 w-4" /> Nova conversa
+            </Button>
+            <Button
+              onClick={() => setListaAberta((v) => !v)}
+              variant="ghost"
+              aria-expanded={listaAberta}
+              className="shrink-0 gap-1.5 lg:hidden"
+            >
+              <MessagesSquare className="h-4 w-4" />
+              {conversas.length}
+              <ChevronDown
+                className={cn('h-3.5 w-3.5 transition-transform', listaAberta && 'rotate-180')}
+                aria-hidden
+              />
+            </Button>
+          </div>
 
           {/* A lista rola dentro de si: com dezenas de conversas ela empurrava o
             resto da página para baixo. */}
-          <div className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
+          <div
+            className={cn(
+              'min-h-0 flex-1 space-y-1 overflow-y-auto pr-1',
+              listaAberta ? '' : 'hidden lg:block',
+            )}
+          >
             {conversas.map((c) => (
               <div
                 key={c.id}
@@ -198,7 +239,7 @@ export function ChatPage() {
         </aside>
 
         {/* Conversa */}
-        <Card className="flex min-h-[70vh] flex-col lg:h-full lg:min-h-0">
+        <Card className="flex min-h-0 flex-1 flex-col lg:h-full">
           <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
             {mensagens.length === 0 ? (
               <div className="m-auto max-w-lg text-center">
@@ -256,11 +297,16 @@ export function ChatPage() {
               aria-label="Pergunta"
               maxLength={2000}
               disabled={enviando}
-              className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 disabled:bg-slate-50"
+              className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500 disabled:bg-slate-50"
             />
-            <Button type="submit" disabled={enviando || !pergunta.trim()} className="gap-2">
+            <Button
+              type="submit"
+              disabled={enviando || !pergunta.trim()}
+              className="shrink-0 gap-2"
+              aria-label="Enviar"
+            >
               <Send className="h-4 w-4" />
-              Enviar
+              <span className="hidden sm:inline">Enviar</span>
             </Button>
           </form>
         </Card>
