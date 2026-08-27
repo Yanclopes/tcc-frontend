@@ -165,11 +165,17 @@ export function ChatPage() {
 
   return (
     <>
-      {/* Altura amarrada à viewport: sem um teto, o cartão cresce com o
-          conteúdo e o overflow-y-auto de dentro nunca chega a agir — mensagem
-          longa (ou um gráfico de 15 barras) esticava a caixa e empurrava o
-          campo de digitação para fora da tela. */}
-      <div className="grid h-[calc(100dvh-9rem)] gap-4 lg:h-[calc(100vh-13rem)] lg:grid-cols-[16rem_1fr]">
+      {/*
+        Altura amarrada à viewport: sem um teto, o cartão cresce com o conteúdo
+        e o overflow-y-auto de dentro nunca chega a agir — mensagem longa (ou um
+        gráfico de 15 barras) esticava a caixa e empurrava o campo de digitação
+        para fora da tela.
+
+        FLEX no mobile, GRID só no desktop. Com grid nos dois, as linhas se
+        dimensionam sozinhas e não há a que ancorar `flex-1` nem uma altura
+        percentual — a lista aberta crescia e empurrava o chat para fora.
+      */}
+      <div className="flex h-[calc(100dvh-9rem)] flex-col gap-4 lg:grid lg:h-[calc(100vh-13rem)] lg:grid-cols-[16rem_1fr]">
         {/*
           No mobile a lista vira um painel recolhivel. Empilhada acima do chat
           — que e o que um grid de coluna unica faz —, era preciso rolar todas
@@ -177,9 +183,7 @@ export function ChatPage() {
           100dvh em vez de 100vh: no celular a barra do navegador entra e sai, e
           vh nao acompanha, escondendo o campo de digitacao atras dela.
         */}
-        <aside
-          className={cn('flex min-h-0 flex-col gap-2', listaAberta ? 'max-h-[45%]' : 'shrink-0')}
-        >
+        <aside className="flex shrink-0 flex-col gap-2 lg:min-h-0 lg:shrink">
           <div className="flex gap-2">
             <Button onClick={novaConversa} variant="outline" className="flex-1 justify-start gap-2">
               <MessageSquarePlus className="h-4 w-4" /> Nova conversa
@@ -199,11 +203,17 @@ export function ChatPage() {
             </Button>
           </div>
 
-          {/* A lista rola dentro de si: com dezenas de conversas ela empurrava o
-            resto da página para baixo. */}
+          {/*
+            A lista rola dentro de si: com dezenas de conversas ela empurrava o
+            resto da página para baixo.
+
+            O teto vai em dvh, não em porcentagem: no mobile o pai é flex de
+            altura fixa e uma porcentagem não tem a que se referir — a lista
+            crescia sem limite e empurrava o chat para fora da tela.
+          */}
           <div
             className={cn(
-              'min-h-0 flex-1 space-y-1 overflow-y-auto pr-1',
+              'max-h-[40dvh] space-y-1 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1',
               listaAberta ? '' : 'hidden lg:block',
             )}
           >
@@ -239,7 +249,7 @@ export function ChatPage() {
         </aside>
 
         {/* Conversa */}
-        <Card className="flex min-h-0 flex-1 flex-col lg:h-full">
+        <Card className="flex min-h-0 flex-1 flex-col lg:h-full lg:flex-none">
           <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
             {mensagens.length === 0 ? (
               <div className="m-auto max-w-lg text-center">
