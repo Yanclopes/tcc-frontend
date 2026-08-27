@@ -214,3 +214,144 @@ export interface DashboardFilter {
   to?: string;
   level?: RegionLevel;
 }
+
+// ---------------------------------------------------------------------------
+// Chat com IA — assistente de análise (admin). Ver tcc-docs/specs/06-chat-ia.md.
+// ---------------------------------------------------------------------------
+
+export interface ChatConversa {
+  id: string;
+  titulo: string;
+  criadaEm: string;
+  atualizadaEm: string;
+}
+
+/** Trecho da base de conhecimento que sustentou a resposta. */
+export interface TrechoCitado {
+  trechoId: number;
+  documentoId: number;
+  fonte: string;
+  titulo: string;
+  texto: string;
+  similaridade: number;
+}
+
+/**
+ * Um passo do raciocínio do assistente. É o que torna o RAG auditável na
+ * interface: mostra o que foi recuperado e quais consultas foram feitas.
+ */
+export type PassoDoAssistente =
+  | {
+      tipo: 'recuperacao';
+      trechos: Array<{ fonte: string; titulo: string; similaridade: number }>;
+    }
+  | {
+      tipo: 'ferramenta';
+      nome: string;
+      argumentos: Record<string, unknown>;
+      resumo: string;
+      erro?: string;
+    };
+
+/** Como o valor do gráfico deve ser formatado. */
+export type FormatoDeValor = 'percentual' | 'contagem' | 'tempo';
+
+export interface ItemDoGrafico {
+  rotulo: string;
+  valor: number;
+  /** 0..1 — comprimento relativo da barra, calculado no back-end. */
+  proporcao: number;
+  detalhe?: string;
+  /** Só vem preenchida quando a cor carrega identidade (ODS). */
+  cor?: string;
+}
+
+/**
+ * Gráfico montado pelo back-end a partir de uma consulta real. Os números nunca
+ * vêm do modelo — ver `tcc-docs/specs/06-chat-ia.md`, seção "Gráficos".
+ */
+/** Uma célula do heatmap: o cruzamento de duas dimensões. */
+export interface CelulaDoGrafico {
+  linha: string;
+  coluna: string;
+  /** null = cruzamento sem dado — diferente de ter valor zero. */
+  valor: number | null;
+  /** 0..1 — posição na rampa de cor. */
+  intensidade: number;
+  detalhe?: string;
+}
+
+/** Uma série nomeada, para barras agrupadas. */
+export interface SerieDoGrafico {
+  nome: string;
+  cor: string;
+  /** Valores na mesma ordem de `itens`. */
+  valores: number[];
+}
+
+export interface EspecificacaoDeGrafico {
+  tipo: 'barras' | 'indicador' | 'barras_agrupadas' | 'matriz';
+  titulo: string;
+  formato: FormatoDeValor;
+  itens: ItemDoGrafico[];
+  series?: SerieDoGrafico[];
+  celulas?: CelulaDoGrafico[];
+  linhas?: string[];
+  colunas?: string[];
+  fonte: string;
+  nota?: string;
+}
+
+export type TipoDeAcao =
+  | 'aprovar_sugestao_escola'
+  | 'vincular_sugestao_escola'
+  | 'rejeitar_sugestao_escola'
+  | 'definir_pergunta_ativa'
+  | 'criar_pergunta'
+  | 'editar_pergunta';
+
+export interface AvisoDaAcao {
+  nivel: 'atencao' | 'informacao';
+  texto: string;
+}
+
+/**
+ * Ação proposta pelo assistente — **não executada**. A execução depende do
+ * clique do administrador e passa pelo endpoint de sempre, com guard e
+ * auditoria. Ver `tcc-docs/specs/06-chat-ia.md`, seção "Ações administrativas".
+ */
+export interface AcaoProposta {
+  id: string;
+  tipo: TipoDeAcao;
+  resumo: string;
+  detalhes: Array<{ rotulo: string; valor: string }>;
+  avisos: AvisoDaAcao[];
+  requisicao: {
+    metodo: 'POST' | 'PATCH';
+    caminho: string;
+    corpo: Record<string, unknown>;
+  };
+}
+
+export interface ChatMensagem {
+  id: number;
+  papel: 'usuario' | 'assistente';
+  conteudo: string;
+  passos?: PassoDoAssistente[] | null;
+  graficos?: EspecificacaoDeGrafico[] | null;
+  acoes?: AcaoProposta[] | null;
+  /** Respostas rápidas: clicar envia a frase como próxima pergunta. */
+  sugestoes?: string[] | null;
+  criadaEm: string;
+}
+
+export interface ChatResposta {
+  mensagem: ChatMensagem;
+  trechosCitados: TrechoCitado[];
+}
+
+export interface ChatStatus {
+  habilitado: boolean;
+  trechosIndexados: number;
+  modelo: string;
+}

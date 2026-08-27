@@ -1,9 +1,21 @@
-import { BarChart3, Crown, LogOut, Menu, School, ScrollText, Trophy, UserCircle2, X } from 'lucide-react';
+import {
+  BarChart3,
+  Bot,
+  Crown,
+  LogOut,
+  Menu,
+  School,
+  ScrollText,
+  Trophy,
+  UserCircle2,
+  X,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { MenuAdmin, type LinkDoMenu } from './MenuAdmin';
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, isMaster, logout } = useAuth();
@@ -15,12 +27,21 @@ export function Navbar() {
     navigate('/');
   };
 
-  const links = [
+  /** Telas do dia a dia, visíveis para todo mundo. */
+  const links: LinkDoMenu[] = [
     { to: '/jogar', label: 'Jogar' },
     { to: '/ranking', label: 'Ranking', icon: Trophy },
+  ];
+
+  /**
+   * Telas de gestão. Agrupadas num menu próprio para não espremer as de cima —
+   * um master via sete itens lado a lado — e só montadas para quem tem acesso.
+   */
+  const linksAdmin: LinkDoMenu[] = [
     ...(isAdmin
       ? [
           { to: '/dashboard', label: 'Dashboard', icon: BarChart3 },
+          { to: '/admin/chat', label: 'Assistente', icon: Bot },
           { to: '/admin/perguntas', label: 'Perguntas', icon: ScrollText },
           { to: '/admin/escolas', label: 'Escolas', icon: School },
         ]
@@ -57,6 +78,7 @@ export function Navbar() {
               {l.label}
             </NavLink>
           ))}
+          <MenuAdmin links={linksAdmin} />
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -122,6 +144,34 @@ export function Navbar() {
                 {l.label}
               </NavLink>
             ))}
+
+            {/* No mobile a lista continua plana — dropdown dentro de menu
+                aberto é um clique a mais sem ganho —, só rotulada. */}
+            {linksAdmin.length > 0 && (
+              <>
+                <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Administração
+                </p>
+                {linksAdmin.map((l) => (
+                  <NavLink
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium',
+                        isActive
+                          ? 'bg-brand-50 text-brand-700'
+                          : 'text-slate-700 hover:bg-slate-100',
+                      )
+                    }
+                  >
+                    {l.icon && <l.icon className="h-4 w-4" />}
+                    {l.label}
+                  </NavLink>
+                ))}
+              </>
+            )}
             <div className="mt-2 border-t border-slate-100 pt-2">
               {isAuthenticated ? (
                 <>
@@ -132,17 +182,26 @@ export function Navbar() {
                   >
                     <UserCircle2 className="h-4 w-4" /> Meu perfil
                   </NavLink>
-                  <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="w-full justify-start"
+                  >
                     <LogOut className="h-4 w-4" /> Sair
                   </Button>
                 </>
               ) : (
                 <div className="flex flex-col gap-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link to="/login" onClick={() => setOpen(false)}>Entrar</Link>
+                    <Link to="/login" onClick={() => setOpen(false)}>
+                      Entrar
+                    </Link>
                   </Button>
                   <Button size="sm" asChild>
-                    <Link to="/registrar" onClick={() => setOpen(false)}>Criar conta</Link>
+                    <Link to="/registrar" onClick={() => setOpen(false)}>
+                      Criar conta
+                    </Link>
                   </Button>
                 </div>
               )}
