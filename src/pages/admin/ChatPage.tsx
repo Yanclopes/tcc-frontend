@@ -14,7 +14,7 @@ import type { ChatConversa, ChatMensagem, ChatStatus } from '@/types';
 const SUGESTOES = [
   'Que perguntas eu deveria revisar ou desativar agora?',
   'Algum ODS está com cobertura fraca no banco de perguntas?',
-  'Em quais escolas a participação ainda não chegou?',
+  'Tem alguma sugestão de escola esperando aprovação?',
   'Me mostra um gráfico da taxa de acerto por ODS',
 ];
 

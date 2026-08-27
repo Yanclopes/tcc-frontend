@@ -302,12 +302,44 @@ export interface EspecificacaoDeGrafico {
   nota?: string;
 }
 
+export type TipoDeAcao =
+  | 'aprovar_sugestao_escola'
+  | 'vincular_sugestao_escola'
+  | 'rejeitar_sugestao_escola'
+  | 'definir_pergunta_ativa'
+  | 'criar_pergunta'
+  | 'editar_pergunta';
+
+export interface AvisoDaAcao {
+  nivel: 'atencao' | 'informacao';
+  texto: string;
+}
+
+/**
+ * Ação proposta pelo assistente — **não executada**. A execução depende do
+ * clique do administrador e passa pelo endpoint de sempre, com guard e
+ * auditoria. Ver `.specs/06-chat-ia.md`, seção "Ações administrativas".
+ */
+export interface AcaoProposta {
+  id: string;
+  tipo: TipoDeAcao;
+  resumo: string;
+  detalhes: Array<{ rotulo: string; valor: string }>;
+  avisos: AvisoDaAcao[];
+  requisicao: {
+    metodo: 'POST' | 'PATCH';
+    caminho: string;
+    corpo: Record<string, unknown>;
+  };
+}
+
 export interface ChatMensagem {
   id: number;
   papel: 'usuario' | 'assistente';
   conteudo: string;
   passos?: PassoDoAssistente[] | null;
   graficos?: EspecificacaoDeGrafico[] | null;
+  acoes?: AcaoProposta[] | null;
   criadaEm: string;
 }
 

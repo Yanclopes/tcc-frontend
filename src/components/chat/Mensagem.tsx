@@ -1,6 +1,7 @@
 import { Bot, User } from 'lucide-react';
 import type { ChatMensagem } from '@/types';
 import { cn } from '@/lib/utils';
+import { AcaoProposta } from './AcaoProposta';
 import { GraficoDaResposta } from './GraficoDaResposta';
 import { PassosDoAssistente } from './PassosDoAssistente';
 
@@ -81,7 +82,7 @@ export function Mensagem({ mensagem }: { mensagem: ChatMensagem }) {
       <div
         className={cn(
           'max-w-[min(46rem,85%)] rounded-2xl px-4 py-3 text-sm',
-          !doUsuario && mensagem.graficos?.length ? 'w-full' : '',
+          !doUsuario && (mensagem.graficos?.length || mensagem.acoes?.length) ? 'w-full' : '',
           doUsuario ? 'bg-slate-100 text-slate-800' : 'border border-slate-200 bg-white text-slate-700',
         )}
       >
@@ -92,6 +93,10 @@ export function Mensagem({ mensagem }: { mensagem: ChatMensagem }) {
           mensagem.graficos?.map((grafico, i) => (
             <GraficoDaResposta key={`${grafico.fonte}-${i}`} grafico={grafico} />
           ))}
+
+        {/* Ações antes dos passos: exigem decisão, não são auditoria. */}
+        {!doUsuario &&
+          mensagem.acoes?.map((acao) => <AcaoProposta key={acao.id} acao={acao} />)}
 
         {!doUsuario && mensagem.passos && <PassosDoAssistente passos={mensagem.passos} />}
       </div>

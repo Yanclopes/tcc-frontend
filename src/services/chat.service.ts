@@ -1,5 +1,5 @@
 import { api } from '@/lib/api';
-import type { ChatConversa, ChatMensagem, ChatResposta, ChatStatus } from '@/types';
+import type { AcaoProposta, ChatConversa, ChatMensagem, ChatResposta, ChatStatus } from '@/types';
 
 /**
  * Assistente de análise com RAG (admin). A chave da OpenAI vive apenas no
@@ -44,3 +44,20 @@ export const chatService = {
     return data;
   },
 };
+
+/**
+ * Executa uma ação proposta pelo assistente.
+ *
+ * Dispara o endpoint administrativo de sempre — o mesmo que as telas de
+ * Perguntas e Escolas usam —, com `RolesGuard`, validação de DTO e
+ * `audit_log`. O assistente montou o formulário; quem submete é o
+ * administrador, ao clicar. Ver `.specs/06-chat-ia.md`.
+ */
+export async function executarAcao(acao: AcaoProposta): Promise<void> {
+  const { metodo, caminho, corpo } = acao.requisicao;
+  if (metodo === 'POST') {
+    await api.post(caminho, corpo);
+    return;
+  }
+  await api.patch(caminho, corpo);
+}
