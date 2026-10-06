@@ -9,10 +9,9 @@ import { Spinner } from '@/components/ui/Spinner';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { extractError } from '@/lib/api';
+import { VERSAO_DO_TERMO } from '@/lib/privacidade';
 import { catalogService } from '@/services/catalog.service';
 import type { GeoItem } from '@/types';
-
-const CONSENT_VERSION = '2026-01-v1';
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -93,7 +92,7 @@ export function RegisterPage() {
         schoolId: !suggesting && schoolId ? Number(schoolId) : undefined,
         suggestedSchoolName: willSuggest ? suggestName.trim() : undefined,
         suggestedSchoolCityId: willSuggest ? Number(cityId) : undefined,
-        consentVersion: CONSENT_VERSION,
+        consentVersion: VERSAO_DO_TERMO,
       });
       toast(
         willSuggest
