@@ -21,7 +21,6 @@ updates:
           - "@radix-ui/*"
           - "axios"
           - "lucide-react"
-          - "socket.io-client"
         update-types:
           - minor
           - patch
